@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en" data-theme="mono">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Header Options — Sean OCallaghan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ───────────── Color schemes ───────────── */
+    :root,
+    [data-theme="mono"] {
+      --bg: #0a0a0b; --surface: #131315; --surface-2: #19191c; --border: #26262b;
+      --text: #ededef; --dim: #9a9aa3; --accent: #4d8dff; --accent-rgb: 77, 141, 255; --accent-ink: #050a14;
+    }
+    [data-theme="amber"] {
+      --bg: #0f0b05; --surface: #17110a; --surface-2: #1f170d; --border: #2e2313;
+      --text: #ffe2a8; --dim: #a8874a; --accent: #ffb000; --accent-rgb: 255, 176, 0; --accent-ink: #1a1203;
+    }
+    [data-theme="violet"] {
+      --bg: #0e0d13; --surface: #15141c; --surface-2: #1b1a24; --border: #2a2836;
+      --text: #ecebf5; --dim: #9b98ad; --accent: #a78bfa; --accent-rgb: 167, 139, 250; --accent-ink: #120b24;
+    }
+    [data-theme="forest"] {
+      --bg: #0a0f0c; --surface: #111814; --surface-2: #16201a; --border: #22302a;
+      --text: #e6efe9; --dim: #8fa398; --accent: #8fbf9f; --accent-rgb: 143, 191, 159; --accent-ink: #0a140e;
+    }
+
+    :root {
+      --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+      --bar-h: 60px;
+      --gutter: clamp(16px, 4vw, 48px);
+      color-scheme: dark;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: var(--bar-h); }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      transition: background 0.4s var(--ease), color 0.4s var(--ease);
+    }
+    a { color: inherit; text-decoration: none; }
+    h1, p { margin: 0; }
+    img { display: block; max-width: 100%; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+    .mono { font-family: var(--mono); font-size: 0.8125rem; letter-spacing: 0.02em; }
+    .dim { color: var(--dim); }
+
+    /* ───────────── Switcher bar ───────────── */
+    .bar {
+      position: sticky; top: 0; z-index: 50;
+      height: var(--bar-h);
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 0 var(--gutter);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .bar-title { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); white-space: nowrap; }
+    .bar-group { display: flex; align-items: center; gap: 4px; }
+    .pill {
+      font: 500 0.75rem var(--mono);
+      color: var(--dim);
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 6px 10px; border-radius: 999px;
+      cursor: pointer; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .pill:hover { color: var(--text); background: var(--surface-2); }
+    .pill[aria-pressed="true"] { color: var(--text); border-color: var(--border); background: var(--surface-2); }
+    .swatch { width: 10px; height: 10px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15); }
+
+    /* ───────────── Option sections ───────────── */
+    .opt {
+      position: relative;
+      min-height: calc(100svh - var(--bar-h));
+      display: flex;
+      flex-direction: column;
+      padding: 72px var(--gutter) 48px;
+      border-bottom: 1px dashed var(--border);
+      overflow: hidden;
+    }
+    .opt-label {
+      position: absolute; top: 20px; left: var(--gutter);
+      font: 500 0.6875rem var(--mono);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--accent);
+      padding: 5px 10px; border-radius: 999px;
+      border: 1px solid rgba(var(--accent-rgb), 0.35);
+      background: rgba(var(--accent-rgb), 0.08);
+      z-index: 5;
+    }
+
+    .photo { width: 100%; height: 100%; object-fit: cover; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 20px; border-radius: 999px;
+      font: 500 0.9375rem var(--sans);
+      border: 1px solid var(--border);
+      color: var(--text);
+      transition: transform 0.2s var(--ease), background 0.2s, border-color 0.2s;
+    }
+    .btn:hover { border-color: var(--accent); }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .btn-primary:hover { filter: brightness(1.08); }
+    .btn svg { width: 16px; height: 16px; }
+
+    .socials { display: flex; gap: 10px; }
+    .social {
+      width: 42px; height: 42px; display: grid; place-items: center;
+      border-radius: 12px; border: 1px solid var(--border); color: var(--dim);
+      transition: color 0.2s, border-color 0.2s, transform 0.2s var(--ease);
+    }
+    .social:hover { color: var(--text); border-color: var(--accent); transform: translateY(-2px); }
+    .social svg { width: 18px; height: 18px; }
+
+    .status { display: inline-flex; align-items: center; gap: 8px; font: 500 0.75rem var(--mono); color: var(--text); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.18); }
+
+    /* entrance */
+    .rise { opacity: 0; transform: translateY(16px); }
+    .opt.in .rise { opacity: 1; transform: none; transition: opacity 0.7s var(--ease), transform 0.7s var(--ease); transition-delay: calc(var(--i, 0) * 90ms); }
+
+    /* ───────────── 1 · Split hero ───────────── */
+    .split {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+      align-items: center;
+      gap: clamp(32px, 6vw, 96px);
+      max-width: 1200px; width: 100%; margin: 0 auto;
+    }
+    .split .hello { color: var(--dim); margin-bottom: 20px; }
+    .split h1 {
+      font-size: clamp(3rem, 8.5vw, 7.5rem);
+      font-weight: 800; letter-spacing: -0.05em; line-height: 0.92;
+    }
+    .split h1 span { display: block; }
+    .split h1 .last { color: var(--accent); }
+    .split .title {
+      display: flex; align-items: center; gap: 14px;
+      margin: 28px 0 36px;
+      font-size: clamp(1.125rem, 2vw, 1.5rem); font-weight: 500; color: var(--text);
+    }
+    .split .title::before { content: ""; width: 40px; height: 2px; background: var(--accent); }
+    .split .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .split .frame {
+      position: relative;
+      aspect-ratio: 4 / 5;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 40px 80px -40px rgba(var(--accent-rgb), 0.45);
+    }
+    .split .frame::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 55%, rgba(0,0,0,0.55));
+    }
+    .split .badge {
+      position: absolute; left: 16px; bottom: 16px; z-index: 2;
+      padding: 8px 12px; border-radius: 999px;
+      background: color-mix(in srgb, var(--bg) 70%, transparent);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+    }
+
+    /* ───────────── 2 · Centered portrait ───────────── */
+    .centered {
+      flex: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; gap: 0;
+    }
+    .centered::before {
+      content: ""; position: absolute; left: 50%; top: 42%;
+      width: 720px; height: 720px; transform: translate(-50%, -50%);
+      background: radial-gradient(closest-side, rgba(var(--accent-rgb), 0.16), transparent);
+      pointer-events: none;
+    }
+    .ring {
+      --size: clamp(132px, 18vw, 184px);
+      position: relative;
+      width: var(--size); height: var(--size); flex: none;
+      border-radius: 50%;
+      padding: 4px;
+      background: conic-gradient(from 210deg, var(--accent), rgba(var(--accent-rgb), 0.1) 40%, var(--accent) 75%, rgba(var(--accent-rgb), 0.1));
+      box-shadow: 0 0 60px -10px rgba(var(--accent-rgb), 0.55);
+    }
+    .ring .photo { border-radius: 50%; border: 4px solid var(--bg); }
+    .centered h1 {
+      margin-top: 36px;
+      font-size: clamp(2.5rem, 6.5vw, 5rem);
+      font-weight: 700; letter-spacing: -0.04em; line-height: 1;
+    }
+    .centered .title {
+      margin: 16px 0 28px;
+      display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px;
+      font-size: clamp(1rem, 1.6vw, 1.25rem); color: var(--dim);
+    }
+    .centered .title strong { color: var(--text); font-weight: 500; }
+    .centered .sep { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+
+    /* ───────────── 3 · Oversized name ───────────── */
+    .over { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; }
+    .over .meta { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 8px; }
+    .over .meta .role { color: var(--text); }
+    .over .name {
+      position: relative;
+      font-size: clamp(2.5rem, 13.4vw, 15rem);
+      font-weight: 800; letter-spacing: -0.055em; line-height: 0.85;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .over .name span { display: block; }
+    .over .name .l1 { color: var(--text); position: relative; z-index: 2; }
+    .over .name .l2 { color: transparent; -webkit-text-stroke: 2px var(--accent); position: relative; z-index: 2; }
+    /* Photo sits right after "SEAN" and slides behind the outlined last name */
+    .over .snap {
+      position: absolute;
+      left: 2.8em; top: -0.12em;
+      width: 1.3em;
+      aspect-ratio: 4 / 5;
+      border-radius: 0.09em;
+      overflow: hidden;
+      transform: rotate(4deg);
+      border: 1px solid var(--border);
+      box-shadow: 0 30px 60px -20px rgba(0,0,0,0.7);
+      z-index: 1;
+    }
+    .over .foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+    .over .foot p { max-width: 40ch; color: var(--dim); font-size: 1.0625rem; }
+    .over .foot p strong { color: var(--text); font-weight: 500; }
+
+    /* ───────────── 4 · Profile card ───────────── */
+    .cardwrap {
+      flex: 1; display: grid; place-items: center;
+    }
+    #opt-4 {
+      background-image: radial-gradient(rgba(var(--accent-rgb), 0.18) 1px, transparent 1px);
+      background-size: 22px 22px;
+      background-position: center;
+    }
+    #opt-4::before {
+      content: ""; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center, transparent 20%, var(--bg) 85%);
+      pointer-events: none;
+    }
+    .profile {
+      position: relative;
+      width: min(100%, 560px);
+      padding: clamp(24px, 4vw, 36px);
+      border-radius: 28px;
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+      border: 1px solid var(--border);
+      box-shadow: 0 50px 100px -40px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .profile .top { display: flex; align-items: center; gap: 20px; }
+    .profile .avatar { width: 88px; height: 88px; border-radius: 22px; overflow: hidden; flex: none; border: 1px solid var(--border); }
+    .profile h1 { font-size: clamp(1.5rem, 3.6vw, 2rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; }
+    .profile .role { margin-top: 6px; color: var(--accent); font-weight: 500; }
+    .profile hr { border: 0; height: 1px; background: var(--border); margin: 24px 0; }
+    .profile .bio { color: var(--dim); font-size: 1.0625rem; }
+    .profile .bio strong { color: var(--text); font-weight: 500; }
+    .profile .bottom { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 28px; }
+
+    /* ───────────── Responsive ───────────── */
+    @media (max-width: 900px) {
+      .bar-title { display: none; }
+    }
+    @media (max-width: 760px) {
+      :root { --bar-h: 96px; }
+      .bar { flex-direction: column; justify-content: center; align-items: stretch; gap: 6px; padding: 8px 16px; }
+      .bar-group { overflow-x: auto; scrollbar-width: none; }
+      .bar-group::-webkit-scrollbar { display: none; }
+      .pill { padding: 5px 8px; }
+      .split { grid-template-columns: 1fr; gap: 32px; }
+      .split .frame { order: -1; width: min(72%, 300px); }
+      .split .title { margin: 20px 0 28px; }
+      .over .name .l2 { -webkit-text-stroke-width: 1.5px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .rise, .opt.in .rise { opacity: 1; transform: none; transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="bar" aria-label="Design switcher">
+    <span class="bar-title">Header options · Sean OCallaghan</span>
+    <div class="bar-group" role="group" aria-label="Layout">
+      <a class="pill" href="#opt-1">1 Split</a>
+      <a class="pill" href="#opt-2">2 Centered</a>
+      <a class="pill" href="#opt-3">3 Oversized</a>
+      <a class="pill" href="#opt-4">4 Card</a>
+    </div>
+    <div class="bar-group" role="group" aria-label="Color scheme">
+      <button class="pill" data-theme-btn="mono"><span class="swatch" style="background:#4d8dff"></span>Mono</button>
+      <button class="pill" data-theme-btn="amber"><span class="swatch" style="background:#ffb000"></span>Amber</button>
+      <button class="pill" data-theme-btn="violet"><span class="swatch" style="background:#a78bfa"></span>Violet</button>
+      <button class="pill" data-theme-btn="forest"><span class="swatch" style="background:#8fbf9f"></span>Forest</button>
+    </div>
+  </nav>
+
+  <!-- ═══════════ OPTION 1 · SPLIT HERO ═══════════ -->
+  <section class="opt" id="opt-1" aria-label="Option 1: Split hero">
+    <span class="opt-label">Option 1 · Split hero</span>
+    <div class="split">
+      <div>
+        <p class="hello mono rise" style="--i:0">Hello, I’m</p>
+        <h1 class="rise" style="--i:1"><span>Sean</span><span class="last">OCallaghan</span></h1>
+        <p class="title rise" style="--i:2">Software Engineer</p>
+        <div class="actions rise" style="--i:3">
+          <a class="btn btn-primary" href="#">View my work <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn" href="#">Get in touch</a>
+        </div>
+      </div>
+      <div class="frame rise" style="--i:2">
+        <img class="photo" data-photo alt="Portrait of Sean OCallaghan" />
+        <span class="badge status"><span class="dot"></span>Available for work</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ OPTION 2 · CENTERED PORTRAIT ═══════════ -->
+  <section class="opt" id="opt-2" aria-label="Option 2: Centered portrait">
+    <span class="opt-label">Option 2 · Centered portrait</span>
+    <div class="centered">
+      <div class="ring rise" style="--i:0"><img class="photo" data-photo alt="Portrait of Sean OCallaghan" /></div>
+      <h1 class="rise" style="--i:1">Sean OCallaghan</h1>
+      <p class="title rise" style="--i:2"><strong>Software Engineer</strong><span class="sep"></span>San Francisco</p>
+      <div class="socials rise" style="--i:3" data-socials></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ OPTION 3 · OVERSIZED NAME ═══════════ -->
+  <section class="opt" id="opt-3" aria-label="Option 3: Oversized name">
+    <span class="opt-label">Option 3 · Oversized name</span>
+    <div class="over">
+      <div class="meta mono rise" style="--i:0">
+        <span class="role">( Software Engineer )</span>
+        <span class="dim">Based in San Francisco</span>
+      </div>
+      <h1 class="name rise" style="--i:1">
+        <span class="l1">Sean</span>
+        <span class="l2">OCallaghan</span>
+        <span class="snap"><img class="photo" data-photo alt="Portrait of Sean OCallaghan" /></span>
+      </h1>
+      <div class="foot rise" style="--i:2">
+        <p><strong>Software engineer</strong> building fast, careful software, from APIs to interfaces people enjoy using.</p>
+        <span class="status"><span class="dot"></span>Available for work</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ OPTION 4 · PROFILE CARD ═══════════ -->
+  <section class="opt" id="opt-4" aria-label="Option 4: Profile card">
+    <span class="opt-label">Option 4 · Profile card</span>
+    <div class="cardwrap">
+      <article class="profile rise" style="--i:0">
+        <div class="top">
+          <div class="avatar"><img class="photo" data-photo alt="Portrait of Sean OCallaghan" /></div>
+          <div>
+            <h1>Sean OCallaghan</h1>
+            <p class="role">Software Engineer</p>
+          </div>
+        </div>
+        <hr />
+        <p class="bio">I build <strong>fast, careful software</strong>, from typed APIs and data pipelines to interfaces people actually enjoy using.</p>
+        <div class="bottom">
+          <div class="socials" data-socials></div>
+          <span class="status"><span class="dot"></span>Available for work</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <script>
+    // ── Swap this for your real photo, e.g. "assets/me.jpg" ──
+    const PHOTO = "assets/photo-placeholder.svg";
+
+    document.querySelectorAll("[data-photo]").forEach((img) => (img.src = PHOTO));
+
+    // Social icons
+    const SOCIALS = [
+      { label: "GitHub", href: "https://github.com/", d: '<path fill="currentColor" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.56 9.56 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/>' },
+      { label: "LinkedIn", href: "https://www.linkedin.com/", d: '<path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4v11H3v-11Zm7 0h3.8v1.5h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1v6.45h-4v-5.72c0-1.36-.03-3.12-1.9-3.12-1.9 0-2.2 1.49-2.2 3.02v5.82h-4v-12Z"/>' },
+      { label: "Email", href: "mailto:hello@example.com", d: '<rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m4 7 8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' },
+    ];
+    document.querySelectorAll("[data-socials]").forEach((el) => {
+      el.innerHTML = SOCIALS.map((s) =>
+        `<a class="social" href="${s.href}" aria-label="${s.label}"${s.href.startsWith("http") ? ' target="_blank" rel="noopener noreferrer"' : ""}><svg viewBox="0 0 24 24" aria-hidden="true">${s.d}</svg></a>`
+      ).join("");
+    });
+
+    // Color scheme switcher (remembered per browser)
+    const root = document.documentElement;
+    const btns = document.querySelectorAll("[data-theme-btn]");
+    const setTheme = (t) => {
+      root.dataset.theme = t;
+      btns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.themeBtn === t)));
+      try { localStorage.setItem("header-theme", t); } catch {}
+    };
+    let saved = "mono";
+    try { saved = localStorage.getItem("header-theme") || "mono"; } catch {}
+    setTheme(saved);
+    btns.forEach((b) => b.addEventListener("click", () => setTheme(b.dataset.themeBtn)));
+
+    // Highlight the layout in view + play its entrance
+    const navLinks = document.querySelectorAll('.bar a.pill');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add("in");
+        navLinks.forEach((a) => a.setAttribute("aria-pressed", String(a.getAttribute("href") === "#" + e.target.id)));
+      });
+    }, { threshold: 0.2 });
+    document.querySelectorAll(".opt").forEach((s) => io.observe(s));
+    // Never leave a layout invisible if the observer doesn't fire.
+    setTimeout(() => document.querySelectorAll(".opt").forEach((s) => s.classList.add("in")), 1200);
+  </script>
+</body>
+</html>
