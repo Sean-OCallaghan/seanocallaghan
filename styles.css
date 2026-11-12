@@ -11,6 +11,15 @@
   --accent: #4d8dff;
   --accent-ink: #050a14;
 
+  /* Depth: layered surfaces (no glow) */
+  --band: #0f0f12;                       /* lighter background band */
+  --card-top: #18181c;                   /* card gradient, top */
+  --card-bottom: #111114;                /* card gradient, bottom */
+  --edge: rgba(255, 255, 255, 0.07);     /* light catching the top edge */
+  --border-hover: #3a3a44;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 32px -16px rgba(0, 0, 0, 0.7);
+  --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.5), 0 20px 40px -16px rgba(0, 0, 0, 0.8);
+
   --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -22,7 +31,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
 body {
   margin: 0;
   background: var(--bg);
@@ -36,16 +45,60 @@ a { color: inherit; text-decoration: none; }
 h1, p { margin: 0; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
 
-/* ───────────── Top bar: social icons, far right ───────────── */
+/* ───────────── Top bar: monogram, section links, socials ───────────── */
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.25s, border-color 0.25s;
+}
+/* Once the page scrolls, give the bar a background so content passes under it */
+.topbar.is-scrolled {
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(12px);
+  border-bottom-color: var(--border);
+}
+.topbar-inner {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  gap: 4px;
+  gap: 28px;
   max-width: calc(1200px + 2 * var(--gutter));
   margin: 0 auto;
-  padding: 20px var(--gutter) 0;
+  padding: 14px var(--gutter);
 }
+
+.monogram {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: 800 0.875rem var(--sans);
+  letter-spacing: -0.03em;
+  transition: filter 0.2s, transform 0.2s var(--ease);
+}
+.monogram:hover { filter: brightness(1.1); }
+.monogram:active { transform: scale(0.95); }
+
+.nav-links { display: flex; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.nav-links a {
+  display: block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  color: var(--dim);
+  transition: color 0.2s, background 0.2s;
+}
+.nav-links a:hover { color: var(--text); background: var(--surface-2); }
+.nav-links a[aria-current] { color: var(--text); }
+
+.social { display: flex; gap: 4px; margin-left: auto; }
+
 .icon-link {
   display: grid;
   place-items: center;
@@ -117,6 +170,35 @@ h1, p { margin: 0; }
 .btn-primary:hover { filter: brightness(1.08); }
 .btn svg { width: 14px; height: 14px; }
 
+/* ───────────── Hero art: stacked app cards ───────────── */
+.hero { position: relative; }
+.hero-inner { position: relative; z-index: 1; }
+.hero-art {
+  position: absolute;
+  top: 50%;
+  right: max(var(--gutter), calc((100% - 1200px) / 2));
+  width: min(44%, 520px);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.hero-art svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+.app-card { transition: transform 0.4s var(--ease); }
+.app-card.is-back { opacity: 0.45; }
+.app-card.is-mid  { opacity: 0.7; }
+/* Cards slide in from the stack on load; "backwards" so hover can take over afterwards */
+.app-card { animation: card-in 0.9s var(--ease) backwards; }
+.app-card.is-back  { animation-delay: 0.15s; }
+.app-card.is-mid   { animation-delay: 0.3s; }
+.app-card.is-front { animation-delay: 0.45s; }
+@keyframes card-in { from { opacity: 0; transform: translate(-16px, 10px); } }
+.hero:hover .app-card.is-front { transform: translateY(-3px); }
+.hero:hover .app-card.is-back { transform: translateY(2px); }
+
+@media (max-width: 1000px) {
+  .hero-art { display: none; }
+}
+
 /* Gentle entrance */
 .rise { animation: rise 0.7s var(--ease) both; animation-delay: calc(var(--i, 0) * 80ms); }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
@@ -140,11 +222,12 @@ h1, p { margin: 0; }
 }
 .section h2 {
   margin: 0;
-  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1.1;
+  font-size: clamp(2.125rem, 4.6vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
 }
+.accent { color: var(--accent); }
 .lede { margin-top: 16px; color: var(--dim); font-size: 1.0625rem; }
 
 h3 { margin: 0; font-weight: 600; letter-spacing: -0.01em; }
@@ -162,6 +245,47 @@ strong { color: var(--text); font-weight: 600; }
   color: var(--dim);
 }
 
+/* ── Background bands: full-width, alternating ── */
+.section.band {
+  background: var(--band);
+  box-shadow: 0 0 0 100vmax var(--band);
+  clip-path: inset(0 -100vmax);
+  border-top-color: transparent;
+}
+.band + .section { border-top-color: transparent; }
+
+/* ── Shared layered card ── */
+.card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
+  box-shadow: inset 0 1px 0 var(--edge), var(--shadow);
+  transition: transform 0.25s var(--ease), border-color 0.25s, box-shadow 0.25s var(--ease);
+}
+.card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-hover);
+  box-shadow: inset 0 1px 0 var(--edge), var(--shadow-lift);
+}
+
+/* ── Stats row ── */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+.stats li { display: grid; gap: 6px; padding-top: 16px; border-top: 1px solid var(--border); }
+.stat-n {
+  font-size: clamp(2rem, 3.6vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--accent);
+}
+.stat-l { font-size: 0.875rem; color: var(--dim); }
+.num { color: var(--accent); }
+
 /* ── Experience: company grid ── */
 .companies {
   display: grid;
@@ -170,12 +294,7 @@ strong { color: var(--text); font-weight: 600; }
 }
 .company-card {
   padding: 28px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--surface);
-  transition: border-color 0.2s;
 }
-.company-card:hover { border-color: #3a3a42; }
 .company-head {
   display: flex;
   align-items: baseline;
@@ -217,16 +336,107 @@ strong { color: var(--text); font-weight: 600; }
 /* ── Selected work ── */
 .project {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  gap: 32px;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  align-items: center;
+  gap: 40px;
   padding: 32px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--surface);
 }
-.kind { margin-top: 6px; font-size: 0.875rem; color: var(--dim); }
-.project h3 { font-size: 1.5rem; letter-spacing: -0.02em; }
-.project p { margin: 12px 0 20px; color: var(--dim); max-width: 68ch; }
+/* The carousel is interactive, so the card shouldn't jump under the cursor */
+.project.card:hover, .js-reveal .project.card.reveal.in:hover { transform: none; }
+.project-meta { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; margin-bottom: 14px; }
+.kind { font-size: 0.875rem; color: var(--dim); }
+.project h3 { font-size: 1.75rem; letter-spacing: -0.03em; }
+.project-body p { margin: 12px 0 20px; color: var(--dim); max-width: 60ch; }
+
+/* ── Screenshot carousel ── */
+.carousel { min-width: 0; }
+.carousel-track {
+  display: flex;
+  column-gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 4px;
+  scroll-behavior: smooth;
+  padding: 4px 4px 8px;
+  margin: -4px;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
+          mask-image: linear-gradient(90deg, #000 85%, transparent);
+}
+.carousel-track::-webkit-scrollbar { display: none; }
+.carousel-track:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.slide { flex: 0 0 clamp(150px, 15vw, 190px); scroll-snap-align: start; }
+
+/* Phone-shaped frame; a real screenshot <img> inside fills it */
+.phone {
+  position: relative;
+  aspect-ratio: 9 / 19.5;
+  border-radius: 24px;
+  border: 1px solid #2c2c33;
+  background: #101013;
+  box-shadow: inset 0 1px 0 var(--edge), var(--shadow);
+  overflow: hidden;
+}
+.phone img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.carousel-controls[hidden] { display: none; }
+.carousel-controls { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 16px; }
+.carousel-btn {
+  display: grid;
+  place-items: center;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.2s, opacity 0.2s;
+}
+.carousel-btn:hover:not(:disabled) { border-color: var(--accent); }
+.carousel-btn:disabled { opacity: 0.35; cursor: default; }
+.carousel-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.carousel-dots { display: flex; gap: 6px; }
+.carousel-dots span { width: 6px; height: 6px; border-radius: 999px; background: var(--border-hover); transition: width 0.25s var(--ease), background 0.25s; }
+.carousel-dots span.on { width: 18px; background: var(--accent); }
+
+/* ── About me ── */
+.about {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 16px;
+}
+.bio { padding: 32px; display: flex; flex-direction: column; justify-content: space-between; gap: 28px; }
+.bio-text { font-size: 1.125rem; line-height: 1.65; color: var(--text); }
+.facts { margin: 0; display: grid; gap: 12px; }
+.facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.facts dt { font: 500 0.75rem var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--dim); }
+.facts dd { margin: 0; text-align: right; font-size: 0.9375rem; }
+
+.hobbies { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.hobby { padding: 24px; }
+.hobby-icon {
+  display: grid;
+  place-items: center;
+  width: 40px; height: 40px;
+  margin-bottom: 18px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--accent);
+}
+.hobby-icon svg {
+  width: 20px; height: 20px;
+  fill: none; stroke: currentColor; stroke-width: 1.7;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.hobby h3 { font-size: 1.0625rem; margin-bottom: 6px; }
+.hobby p { color: var(--dim); font-size: 0.9375rem; }
 
 /* ── Work with me ── */
 .services {
@@ -236,12 +446,7 @@ strong { color: var(--text); font-weight: 600; }
 }
 .service {
   padding: 24px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--surface);
-  transition: border-color 0.2s;
 }
-.service:hover { border-color: #3a3a42; }
 .service h3 { font-size: 1.0625rem; margin-bottom: 8px; }
 .service p { color: var(--dim); font-size: 0.9375rem; }
 
@@ -273,9 +478,8 @@ strong { color: var(--text); font-weight: 600; }
   gap: 16px 24px;
   margin-top: 56px;
   padding: 28px 32px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
 }
+.cta.card:hover { transform: none; }
 .cta p { font-size: 1.125rem; font-weight: 500; }
 
 /* ── Footer ── */
@@ -292,12 +496,32 @@ strong { color: var(--text); font-weight: 600; }
   color: var(--dim);
 }
 .footer-links { display: flex; gap: 20px; }
-.footer-links a:hover { color: var(--text); }
+.footer-links a {
+  background: linear-gradient(var(--accent), var(--accent)) left bottom / 0 1px no-repeat;
+  padding-bottom: 2px;
+  transition: color 0.2s, background-size 0.3s var(--ease);
+}
+.footer-links a:hover { color: var(--text); background-size: 100% 1px; }
+
+/* ───────────── Scroll reveal ───────────── */
+.js-reveal .reveal { opacity: 0; transform: translateY(24px); }
+.js-reveal .reveal.in {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.7s var(--ease) var(--d, 0ms), transform 0.7s var(--ease) var(--d, 0ms),
+              border-color 0.25s, box-shadow 0.25s var(--ease);
+}
+/* After the entrance, hover lift should respond instantly */
+.js-reveal .card.reveal.in:hover { transition: transform 0.25s var(--ease), border-color 0.25s, box-shadow 0.25s var(--ease); transform: translateY(-3px); }
 
 /* ───────────── Tablet ───────────── */
 @media (max-width: 1000px) {
   .services { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .skills { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .about { grid-template-columns: 1fr; }
+  .project { grid-template-columns: 1fr; }
+  .slide { flex-basis: 30%; }
 }
 
 /* ───────────── Phones ───────────── */
@@ -306,11 +530,16 @@ strong { color: var(--text); font-weight: 600; }
   .hero h1 { font-size: clamp(2.25rem, 11vw, 3rem); }
   .title { font-size: 1rem; margin: 16px 0 24px; }
   .title::before { width: 24px; }
+  .nav-links { display: none; }
+  .topbar-inner { padding-top: 12px; padding-bottom: 12px; }
 
   .section { padding: 64px var(--gutter); }
   .section-head { margin-bottom: 32px; }
-  .project { grid-template-columns: 1fr; gap: 12px; }
+  .project { grid-template-columns: 1fr; gap: 28px; }
+  .slide { flex-basis: 46%; }
   .companies { grid-template-columns: 1fr; }
+  .bio { padding: 24px; }
+  .bio-text { font-size: 1.0625rem; }
   .company-card { padding: 24px; }
   .project { padding: 24px; }
   .skills, .services, .steps { grid-template-columns: 1fr; }
@@ -322,4 +551,8 @@ strong { color: var(--text); font-weight: 600; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .rise { animation: none; }
+  .card, .card:hover { transition: none; transform: none; }
+  .app-card { animation: none; transition: none; }
+  .carousel-track { scroll-behavior: auto; }
+  .hero:hover .app-card { transform: none; }
 }
